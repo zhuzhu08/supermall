@@ -6,6 +6,7 @@ import store from './store'
 import fastclick from 'fastclick'
 import VueLazyload from 'vue-lazyload'
 
+
 import toast from '@/components/common/toast'
 
 Vue.config.productionTip = false

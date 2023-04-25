@@ -30,12 +30,15 @@ export default {
       return (
         "￥" +
         this.$store.getters.cartlist
+        // 遍历有选中得
           .filter((item) => {
             return item.checked;
           })
+          // 遍历得到选中得价格*数量
           .reduce((preValue, item) => {
             return preValue + item.price * item.count;
           }, 0)
+          // 保留两位小数
           .toFixed(2)
       );
     },
@@ -45,6 +48,7 @@ export default {
     isSelectAll() {
     //   return !(this.$store.getters.cartlist.filter(item => !item.checked).length)
     if(this.$store.getters.cartlist.length === 0)return false
+    // find查找不选中item.checked 前面也要取反不选中
     return !this.$store.getters.cartlist.find(item=>!item.checked)
     },
   },

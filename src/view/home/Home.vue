@@ -1,10 +1,13 @@
 <template>
   <div id="home">
     <nav-bar class="home-nav"><div slot="center">购物街</div></nav-bar>
-    <TabControl :titles="['流行', '新款', '精选']"
-        @tabclick="tabclick" ref="tabControl1"
-        class="tab-control" v-show="isTabFixed"
-      />
+    <TabControl
+      :titles="['流行', '新款', '精选']"
+      @tabclick="tabclick"
+      ref="tabControl1"
+      class="tab-control"
+      v-show="isTabFixed"
+    />
 
     <scroll
       class="content"
@@ -14,12 +17,13 @@
       :pull-up-load="true"
       @pullingUp="loadMore"
     >
-      <home-swiper :banners="banners" @swiperImageLoad="swiperImageLoad"/>
+      <home-swiper :banners="banners" @swiperImageLoad="swiperImageLoad" />
       <recommend-view :recommends="recommends" />
       <feature-view />
-      <TabControl :titles="['流行', '新款', '精选']"
-        @tabclick="tabclick" ref="tabControl2"
-     
+      <TabControl
+        :titles="['流行', '新款', '精选']"
+        @tabclick="tabclick"
+        ref="tabControl2"
       />
       <good-list :goods="showGoods" />
     </scroll>
@@ -62,15 +66,15 @@ export default {
       banners: [],
       recommends: [],
       goods: {
-        'pop': { page: 0, list: [] },
-        'new': { page: 0, list: [] },
-        'sell': { page: 0, list: [] },
+        pop: { page: 0, list: [] },
+        new: { page: 0, list: [] },
+        sell: { page: 0, list: [] },
       },
       currentType: "pop",
-      isShowBckaTop:false,
-      tabOffsetTop:0,
-      isTabFixed:false,
-      saveY:0
+      isShowBckaTop: false,
+      tabOffsetTop: 0,
+      isTabFixed: false,
+      saveY: 0,
     };
   },
   computed: {
@@ -78,19 +82,20 @@ export default {
       return this.goods[this.currentType].list;
     },
   },
-  destroyed(){
-    console.log('home destroyed')
-  },
-//   activated(){
-//     this.$refs.scroll.scrollTop(0,this.saveY,0)
-//     this.$refs.scroll.refresh()
-//   },
-//   deactivated(){
-//     // 1.保存y值
-//  this.saveY=this.$refs.scroll.getScrolly()
-// //  2.取消全局事件的监听
-// //  this.$bus.$off('itemImgLoad',this.itemImgListener)
-//   },
+  // destroyed() {
+  //   console.log("home destroyed");
+  // },
+    activated(){
+      // 记录离开时的状态
+      this.$refs.scroll.scrollTo(0,this.saveY,0)
+     this.$refs.scroll.refresh()
+    },
+    deactivated(){
+      // 1.保存y值
+   this.saveY=this.$refs.scroll.getScrolly()
+  //  2.取消全局事件的监听
+  //  this.$bus.$off('itemImgLoad',this.itemImgListener)
+    },
 
   created() {
     // 1.请求多个数据
@@ -101,22 +106,25 @@ export default {
     this.getHomeGoods("new");
     this.getHomeGoods("sell");
   },
-  mounted(){
-  // 3.监听item中图片加载完成
+  mounted() {
+    // 3.监听item中图片加载完成
 
- const refresh=debounce(this.$refs.scroll.refresh)
+    // 进行防抖操作相当于本来30张图片要调用30次，使用防抖只需要调用一次
+    const refresh = debounce(this.$refs.scroll.refresh,50);
 
-  this.$bus.$on('itemImageLoad',()=>{
-     refresh()
-    })
+    this.$bus.$on("itemImageLoad", () => {
+      refresh();
+    });
     // console.log(this.$refs.tabControl.$el.offsetTop)
-   
-
   },
   methods: {
     /*
            事件监听相关方法 
           */
+
+          // 防抖函数处理
+   
+
     tabclick(index) {
       switch (index) {
         case 0:
@@ -129,29 +137,30 @@ export default {
           this.currentType = "sell";
           break;
       }
-      this.$refs.tabControl1.currentIndex=index;
-      this.$refs.tabControl2.currentIndex=index;
+      // 给我们最新点击的值保持一致
+      this.$refs.tabControl1.currentIndex = index;
+      this.$refs.tabControl2.currentIndex = index;
     },
     backclick() {
-      this.$refs.scroll.scrollTo(0, 0);
+      // 500是返回顶部的速度
+      this.$refs.scroll.scrollTo(0, 0, 500);
     },
-     contentScroll(position) {
+    //得到scroll传过来的position，返回顶部的距离
+    contentScroll(position) {
       // 1.判断BackTop是否显示
-     this.isShowBckaTop=(-position.y)>1000
-    //  2.决定tabControl是否吸顶(position:fixed)
-    this.isTabFixed=(-position.y)>this.tabOffsetTop
-     },
-     
-  loadMore(){
-   this.getHomeGoods(this.currentType)
-  },
-  swiperImageLoad(){
-    this.tabOffsetTop=this.$refs.tabControl2.$el.offsetTop
-    // console.log(this.$refs.tabControl.$el.offsetTop)
-  },
-      
-      
-     
+      this.isShowBckaTop = -position.y > 1000;
+      //  2.决定tabControl是否吸顶(position:fixed)
+      this.isTabFixed = -position.y > this.tabOffsetTop;
+    },
+
+    loadMore() {
+      this.getHomeGoods(this.currentType);
+    },
+    swiperImageLoad() {
+      this.tabOffsetTop = this.$refs.tabControl2.$el.offsetTop;
+      // 所有组件都有一个属性$el:用于获取组件中的元素
+      // console.log(this.$refs.tabControl.$el.offsetTop)
+    },
 
     /*
         网络请求相关的方法
@@ -165,13 +174,13 @@ export default {
     },
     getHomeGoods(type) {
       const page = this.goods[type].page + 1;
-      getHomeGoods(type, page).then(res=> {
+      getHomeGoods(type, page).then((res) => {
         // console.log(res)
         this.goods[type].list.push(...res.data.list);
         this.goods[type].page += 1;
 
         //完成上拉加载更多
-        this.$refs.scroll.finishPullUp()
+        this.$refs.scroll.finishPullUp();
       });
     },
   },
@@ -194,7 +203,6 @@ export default {
   z-index: 9; */
 }
 
-
 .content {
   /* height: 300px; */
   overflow: hidden;
@@ -204,11 +212,15 @@ export default {
   left: 0;
   right: 0;
 }
-.tab-control{
- position: relative;
- z-index: 9;
-}
+.tab-control {
+  /* 吸顶效果 */
+  /* position: static;
+  top：44px
+  */
 
+  position: relative;
+  z-index: 9;
+}
 
 /* .content{
   height: calc(100% - 93px);

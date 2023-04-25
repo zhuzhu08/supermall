@@ -11,6 +11,7 @@ Vue.use(Vuex)
 
 // 2.创建store对象
 const state = {
+    // 创建一个空数组,在Detail中把数据push进来
     cartlist: []
 
 }

@@ -1,6 +1,7 @@
 export default {
     addCart(context, payload) {
         return new Promise((resolve, reject) => {
+            // 查找数组之前是否有这个商品
             let oldProduct = context.state.cartlist.find(item => item.iid === payload.iid)
             if (oldProduct) {
                 //这里是数量+1

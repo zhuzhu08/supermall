@@ -151,6 +151,7 @@ export default {
       // console.log('-----------')
       this.themeTopYs = [];
       this.themeTopYs.push(0);
+      // 拿组件得加上$el
       this.themeTopYs.push(this.$refs.params.$el.offsetTop);
       this.themeTopYs.push(this.$refs.comment.$el.offsetTop);
       this.themeTopYs.push(this.$refs.recommend.$el.offsetTop);
@@ -210,6 +211,9 @@ export default {
       //  2.决定tabControl是否吸顶(position:fixed)
       this.isTabFixed = -position.y > this.tabOffsetTop;
     },
+    backclick(){
+      this.$refs.scroll.scrollTo(0, 0);
+    },
     addToCar() {
       // 1.获取购物车需要展示的信息
       const product = {};
@@ -222,7 +226,7 @@ export default {
       // 2.将商品添加到购物车里
       // this.$store.commit('addCart',product)
        this.$store.dispatch("addCart", product).then((res) => {
-         console.log(res)
+        //  console.log(res)
         this.$toast.show(res,1500)
         console.log(this.$toast)
        });
@@ -239,6 +243,7 @@ export default {
   z-index: 9;
   background-color: #fff;
   height: 100vh;
+  overflow: hidden;
 }
 .detail-nav {
   position: relative;
